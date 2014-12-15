@@ -1,0 +1,4 @@
+liveweb
+=======
+
+This is a music sequencer made with box2d web, node.js, socket.io, Tone.js and shake.js. It's a free drawing sequencer that you can select any of the instruments and draw lines on the canvas to create an obstacle for the dopping ball to bounce in between. You can also control the number of balls dropping by dragging the slider. Once the ball hits a line, it will make a sound based on the instrument and the length of the line. Each sound is customly made with Tone.js, and mapped with the number of points in each of the drawn lines. This is also a collaborative game that multiple users can open the page in their mobile browser, and draw with their fingers, and send the drawings to each other by shaking the mobile device. To view all the lines drawn by all the users, go to the URL in a computer browser at the same time.
