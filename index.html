@@ -1,0 +1,135 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <!--<meta name="viewport" content="width=device-width">-->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script language="javascript" type="text/javascript" src="/lib/box2d-html5.js"></script>
+  <script language="javascript" type="text/javascript" src="/lib/box2d-helper.js"></script>
+  <script language="javascript" type="text/javascript" src="http://cdn.jsdelivr.net/p5.js/0.3.2/p5.min.js"></script>
+  <script language="javascript" type="text/javascript" src="lib/Tone.js"></script>
+  <script language="javascript" type="text/javascript" src="lib/Tone.Preset.js"></script>
+  <script language="javascript" type="text/javascript" src="particle.js"></script>
+  <script language="javascript" type="text/javascript" src="boundary.js"></script>
+  <script language="javascript" type="text/javascript" src="customlistener.js"></script>
+  <script language="javascript" type="text/javascript" src="sketch.js"></script>
+  <script type="text/javascript" src="shake.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script type="text/javascript">
+
+var toSend = [];
+
+var socket = io.connect('/');
+      
+      socket.on('connect', function() {
+        console.log("Connected");
+      });
+
+      socket.on('touchStarted', function(data) {
+        stouchStarted(data);
+        console.log("stouchStarted");
+      });
+
+
+      socket.on('touchMoved', function(data) {
+        stouchMoved(data);
+      });
+
+
+      socket.on('touchEnded', function(data) {
+        stouchEnded(data);
+      });
+
+function stouchStarted(data){
+    document.getElementById("touchText").innerHTML = "stouchStarted";
+
+    b = new Boundary();
+    b.x = data.x;
+    b.y = data.y;
+    lastPt = {x:data.x, y:data.y};
+}
+
+//when finger dragged, send all the points into boundary
+function stouchMoved(data) {
+  document.getElementById("touchText").innerHTML = "stouchMoved";
+
+  if(lastPt!=null) {
+    b.addPoint(data.x, data.y);
+  }
+}
+
+//when touch released, stop sending points, display the wall
+function stouchEnded(data) {
+  document.getElementById("touchText").innerHTML = "stouchEnded";
+
+  b.makeShape();
+  walls.push(b);
+  // Terminate touch path
+  lastPt=null;
+}
+
+  window.onload = function() {
+
+     // var touchZone1 = document.getElementById("btn1");
+     //  touchZone1.addEventListener("touchStart", button1, false); 
+
+     //  var touchZone2 = document.getElementById("btn2");
+     //  touchZone1.addEventListener("touchStart", button2, false); 
+
+     //  var touchZone3 = document.getElementById("btn3");
+     //  touchZone1.addEventListener("touchStart", button3, false); 
+
+     //  var touchZone4 = document.getElementById("btn4");
+     //  touchZone1.addEventListener("touchStart", button4, false); 
+
+     //  var touchZone5 = document.getElementById("btn5");
+     //  touchZone1.addEventListener("touchStart", button5, false);
+
+    //detect a shake 
+    window.addEventListener('shake', shakeEventDidOccur, false);
+    
+    //define a custom method to fire when shake occurs.
+    function shakeEventDidOccur () {
+    //socket.emit('touchStarted',{hi: 'hi'});
+      //put your own code here etc.
+      if (confirm("Send?")) {
+        console.log("shakeConfirmed");
+          for (var i = 0; i < toSend.length; i++) {
+            socket.emit(toSend[i].savedEvent, toSend[i].data);
+            console.log(toSend[i].data);
+          }
+          toSend = [];
+      }
+    }
+  };
+ 
+    
+</script>
+
+</head>
+<body>
+  <div id="instruments">
+    <button id="btn1" class="action-button animate red" onClick="button1();">Pianoetta</button>
+    <button id="btn2" class="action-button animate green" onClick="button2();">Pizz</button>
+    <button id="btn3" class="action-button animate purple" onClick="button3();">Barky</button>
+    <button id="btn4" class="action-button animate lightBlue" onClick="button4();">Bassy</button>
+    <button id="btn5" class="action-button animate yellow" onClick="button5();">Kick</button>
+  </div>
+  <input id="range" type="range" min="0" max="5" value="0" step="1" onchange="showValue(this.value)" />
+  <span id="ball">0</span>
+  <div id ="text">Add Balls</div>
+  <div id ="touchText"></div>
+
+  <script type="text/javascript">
+    var ballSpeed = document.getElementById("range").value;
+    function showValue(newValue)
+    {
+      document.getElementById("ball").innerHTML= newValue;
+      ballSpeed = newValue;
+    }
+  </script>
+
+</body>
+</html>
